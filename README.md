@@ -1,6 +1,6 @@
 # BankGPT Backend
 
-![BankGPT Logo]([path/to/logo.png](https://lvpvdtjsjkjcteniapit.supabase.co/storage/v1/object/public/statics/Bankgpt.png))
+![BankGPT Logo](https://lvpvdtjsjkjcteniapit.supabase.co/storage/v1/object/public/statics/Bankgpt.png)
 
 ## Overview
 
