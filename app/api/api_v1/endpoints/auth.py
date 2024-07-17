@@ -54,9 +54,11 @@ async def auth_google():
         response = supabase.auth.sign_in_with_oauth({
             "provider": "google",
             "options": {
-                "redirect_to": "http://127.0.0.1:8000/api/v1/auth/callback"  
+                # "redirect_to": "http://127.0.0.1:8000/api/v1/auth/callback"  
+                "redirect_to" : "http://localhost:3000/oauth/callback/"
             }
         })
+        # print(response.url)
         if response:
             return {"redirect_url": response.url}
         else:
