@@ -19,7 +19,8 @@ app.add_middleware(
 async def authenticate_request(request: Request, call_next):
     if (
         request.method == "OPTIONS" 
-        or request.url.path.startswith("/api/v1/questions")
+        or request.url.path.startswith("/api/v1/users")
+        or request.url.path.startswith("/api/v1/files")
         or request.url.path in [
             "/", 
             "/docs", 
@@ -58,7 +59,7 @@ app.include_router(api_router_v1, prefix="/api/v1")
 # Dummy Endpoint
 @app.get("/")
 async def just_fun():
-   return "Hello World"
+   return "BankGPT By BUET-CSE"
 
 # gunicorn -w 4 -k uvicorn.workers.UvicornWorker app.main:app -b 0.0.0.0:8000
 if __name__ == "__main__":
