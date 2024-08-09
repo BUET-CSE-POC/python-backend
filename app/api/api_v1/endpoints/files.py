@@ -9,7 +9,7 @@ from app.api import deps
 from app.db.models.files import File as FileModel
 from app.db.models.users import User as UserModel
 from app.schemas.files import File, FileUpdate
-from app.helpers.supabase_bucket_insert import upload_file_to_supabase
+from app.helpers.supabase_bucket_insert import upload_file_to_supabase, delete_file_from_supabase
 from app.helpers.qdrant_functions import delete_points_by_uuid
 
 from app.background.unstructured_parse import process_pdf
@@ -139,6 +139,13 @@ async def delete_file_by_id(*, db: Session = Depends(deps.get_db), file_id: uuid
         db_file = db.query(FileModel).filter(FileModel.file_id == file_id).first()
         if not db_file:
             raise HTTPException(status_code=404, detail="File not found")
+        
+        file_path = db_file.file_url.split("/")[-1]
+
+        # Delete from Supabase
+        supabase_delete_success = delete_file_from_supabase(file_path)
+        if not supabase_delete_success:
+            raise HTTPException(status_code=500, detail="Failed to delete file from Supabase")
 
         db.delete(db_file)
         db.commit()

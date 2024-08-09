@@ -15,8 +15,18 @@ def upload_file_to_supabase(file: bytes, filename: str, user_id: str) -> str:
         )
         # Construct the public URL
         public_url = supabase.storage.from_(bucket_name).get_public_url(unique_filename)
+        public_url = public_url.rstrip('?')
 
         return public_url
 
     except Exception as e:
         raise Exception(f"Error uploading file to Supabase: {str(e)}")
+    
+def delete_file_from_supabase(file_path: str) -> bool:
+    try:
+        print("file Path is", file_path)
+        supabase.storage.from_(bucket_name).remove(file_path)
+        return True
+    except Exception as e:
+        print(f"Error deleting file from Supabase: {str(e)}")
+        return False
