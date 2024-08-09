@@ -6,8 +6,11 @@ from app.schemas.auth import UserAuth, TokenData
 from fastapi.responses import RedirectResponse
 from fastapi.responses import HTMLResponse
 from app.core.supabase import supabase 
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.api import deps
+from app.schemas.users import User
+from app.db.models.users import User as UserModel
 
 router = APIRouter()
 
@@ -111,21 +114,38 @@ async def auth_callback(request: Request):
 #################################################################################################
 #   Token exchange
 #################################################################################################
-@router.post("/exchange-token")
-async def exchange_token(token_data: TokenData):
+@router.post("/exchange-token", response_model=User)
+async def exchange_token(token_data: TokenData, db: Session = Depends(deps.get_db)):
     try:
         user = supabase.auth.get_user(token_data.token)
         if user:
-            return {
-                "message": "Token exchanged successfully",
-                "user_id": user.user.id,
-                "email": user.user.email,
-                "role": user.user.role
-            }
+            db_user = db.query(UserModel).filter(UserModel.id == user.user.id).first()
+            
+            # print(db_user)
+
+            if not db_user:
+                db_user = UserModel(
+                    id = user.user.id,
+                    name = user.user.user_metadata.get("full_name"),
+                    email = user.user.email,
+                )
+                # print(db_user)
+                db.add(db_user)
+                db.commit()
+                db.refresh(db_user)
+            
+            return db_user
         else:
             raise HTTPException(status_code=401, detail="Invalid token")
+            
+    except ValidationError as ve:
+        raise HTTPException(status_code=422, detail=str(ve))
+    except SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Database error: " + str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Unexpected error: " + str(e))
 
 #################################################################################################
 #   Logout
