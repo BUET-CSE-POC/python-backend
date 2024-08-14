@@ -13,9 +13,12 @@ from app.schemas.messages import Message, MessageCreate
 from app.helpers.openai_functions import create_chat_completion, create_chat_completion_context
 from app.helpers.qdrant_functions import search_in_qdrant
 
+from app.core.config import settings
+
+
 router = APIRouter()
 
-COLLECTION_NAME = "admin_trainer"
+COLLECTION_NAME = settings.COLLECTION_NAME_RISK_MANAGEMENT
 
 #################################################################################################
 #   CREATE CHAT
