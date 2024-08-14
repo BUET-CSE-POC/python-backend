@@ -15,3 +15,5 @@ class User(Base):
     email = Column(String, nullable=False, unique=True)
 
     files = relationship('File', back_populates='uploader')
+    
+    chats = relationship("Chat", back_populates="user")
