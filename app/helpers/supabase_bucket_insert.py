@@ -12,6 +12,9 @@ def upload_file_to_supabase(file: bytes, filename: str, user_id: str) -> str:
         supabase.storage.from_(bucket_name).upload(
             file=file,
             path=unique_filename,
+            file_options={
+                "content-type": "application/pdf"
+            }
         )
         # Construct the public URL
         public_url = supabase.storage.from_(bucket_name).get_public_url(unique_filename)
