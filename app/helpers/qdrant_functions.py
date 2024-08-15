@@ -45,7 +45,7 @@ def vector_point_count(collection_name:str):
 #   Helper function to upload into qdrant cloud
 #   input: modular file, page_no, semantic chunks, summaries and output: nothing
 #################################################################################################
-def upload_to_qdrant(file_id: str, file_url:str, page_no:str, semantic_chunks, summaries, collection_name:str):
+def upload_to_qdrant(file_id: str, file_url:str, file_name:str, page_no:str, semantic_chunks, summaries, collection_name:str):
     index = vector_point_count(collection_name)
     summary_index = 0
 
@@ -55,6 +55,7 @@ def upload_to_qdrant(file_id: str, file_url:str, page_no:str, semantic_chunks, s
             "file_id": file_id,
             "content": semantic_chunk.page_content,
             "file_url": file_url,
+            "file_name": file_name,
             "page_no": page_no
         }
 

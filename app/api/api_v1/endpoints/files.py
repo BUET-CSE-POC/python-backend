@@ -84,7 +84,7 @@ async def upload_file(
         db.commit()
         db.refresh(db_file)
 
-        background_tasks.add_task(process_pdf, file_bytes, str(db_file.file_id), str(public_url))
+        background_tasks.add_task(process_pdf, file_bytes, str(db_file.file_id), str(public_url), filename)
 
         return db_file
 

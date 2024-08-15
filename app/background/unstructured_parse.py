@@ -65,7 +65,7 @@ from app.helpers.semantic_chunk import create_semantic_chunks_80
 #         if os.path.exists(temp_pdf_path):
 #             os.remove(temp_pdf_path)
 
-def process_pdf(file_content: bytes, file_id: str, file_url:str):
+def process_pdf(file_content: bytes, file_id: str, file_url:str, file_name:str):
     temp_pdf_path = f"temp_{file_id}.pdf"
     try:
         make_collection(str(settings.COLLECTION_NAME_RISK_MANAGEMENT))
@@ -92,7 +92,7 @@ def process_pdf(file_content: bytes, file_id: str, file_url:str):
                     
                     summaries = generate_summary(semantic_chunks)
                     
-                    upload_to_qdrant(file_id, file_url, str(current_page), semantic_chunks, summaries, str(settings.COLLECTION_NAME_RISK_MANAGEMENT))
+                    upload_to_qdrant(file_id, file_url,file_name, str(current_page), semantic_chunks, summaries, str(settings.COLLECTION_NAME_RISK_MANAGEMENT))
                    
                     content_parts.clear()
                 current_page = el.metadata.page_number
@@ -110,7 +110,7 @@ def process_pdf(file_content: bytes, file_id: str, file_url:str):
         semantic_chunks = create_semantic_chunks_80(cleaned_page_content)
         summaries = generate_summary(semantic_chunks)
 
-        upload_to_qdrant(file_id,file_url, str(current_page), semantic_chunks, summaries, str(settings.COLLECTION_NAME_RISK_MANAGEMENT))
+        upload_to_qdrant(file_id,file_url,file_name, str(current_page), semantic_chunks, summaries, str(settings.COLLECTION_NAME_RISK_MANAGEMENT))
 
         update_file_status(file_id, "Completed")
     except Exception as e:
