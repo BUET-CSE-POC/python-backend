@@ -14,6 +14,7 @@ Welcome to the backend of **BankGPT**, an application designed to revolutionize 
 - **Supabase**: Used for database hosting and authentication.
 - **Google OAuth**: For user authentication via Google.
 - **SMTP**: Our own setup for email services.
+- **Unstructured**: For document parsing (Running task is to shift the task to llamaparse)
 
 ## Getting Started
 
@@ -37,6 +38,12 @@ Install The requirements with the following command:
 
 ```bash
 pip install -r requirements.txt
+```
+
+You also need this for building purpose
+
+```bash
+sudo apt-get install -y tesseract-ocr libtesseract-dev libleptonica-dev build-essential
 ```
 
 ### Running the Backend

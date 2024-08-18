@@ -12,7 +12,7 @@ from app.core.config import settings
 from app.helpers.file_parsing.image_description import generate_image_description
 from app.helpers.file_parsing.clean_page_content import clean_page_content
 from app.helpers.file_parsing.generate_chunk_summary import generate_summary
-from app.helpers.qdrant_functions import upload_to_qdrant, make_collection
+from app.helpers.qdrant_functions import upload_to_qdrant, make_collection, delete_points_by_uuid
 from app.helpers.semantic_chunk import create_semantic_chunks_80
 
 # def process_pdf(file_content: bytes, file_id: str, file_url: str):
@@ -117,6 +117,7 @@ def process_pdf(file_content: bytes, file_id: str, file_url:str, file_name:str):
         print(f"Error processing PDF: {e}")
         update_file_status(file_id, "Failed")
         # here you may actually call the delete qdrant function and delete all the points. But I would like to keep the partial results
+        delete_points_by_uuid(str(settings.COLLECTION_NAME_RISK_MANAGEMENT), str(file_id))
     finally:
         if os.path.exists(temp_pdf_path):
             os.remove(temp_pdf_path)
