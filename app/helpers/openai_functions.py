@@ -1,10 +1,11 @@
 from app.core.openai import openaiClient
 from app.helpers.qdrant_functions import search_in_qdrant
 from fastapi import  HTTPException
+from app.core.config import settings
 
 def create_chat_completion(query, search_results):
     
-    prompt = f"Query: {query}\n Knowledge Base: {search_results}\n"
+    prompt = f"Chat History: {query}\n\n Knowledge Base: {search_results}\n"
     
     try:
         response = openaiClient.chat.completions.create(
@@ -13,16 +14,18 @@ def create_chat_completion(query, search_results):
                 {
                     "role": "system", 
                     "content": 
-                    """
+                    f"""
                     You are a agent who helps people get banking information.
-                    Your name is 'BankGPT'. Forget everything about openai. You were created by 'BUET Incubator'.
-                    You will be given a query and a knowledge base.
+                    You represent the bank {settings.BANK_NAME} in Bangladesh
+                    Your name is 'BankGPT'. You were created by 'BUET Incubator'.
+                    You will be given an entire conversation and a knowledge base.
                     Try to answer all questions accordingly. Try to give them tips if necessary.
                     Always answer in human readable markdown format.
                     """
                     },
                 {"role": "user", "content": prompt}
-            ]
+            ],
+            temperature=0.5,
         )
         return response.choices[0].message.content
     except Exception as e:

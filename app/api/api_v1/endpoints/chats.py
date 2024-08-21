@@ -12,6 +12,7 @@ from app.db.models.messages import Message as MessageModel
 from app.schemas.messages import Message, MessageCreate
 from app.helpers.openai_functions import create_chat_completion, create_chat_completion_context
 from app.helpers.qdrant_functions import search_in_qdrant
+from app.helpers.chat_helpers.standardize_prompt import standardize_prompt_for_RAG
 
 from app.core.config import settings
 
@@ -141,32 +142,47 @@ async def update_chat(*, db: Session = Depends(deps.get_db), chat_id: uuid.UUID,
         db.add(db_message_user)
         db.commit()
         db.refresh(db_message_user)
+
         
-        search_results = search_in_qdrant(COLLECTION_NAME, queryText, 10)
+        db_full_chat = (
+            db.query(ChatModel)
+            .options(joinedload(ChatModel.messages))
+            .filter(ChatModel.id == db_chat.id)
+            .first()
+        )
+        if not db_full_chat:
+            raise HTTPException(status_code=404, detail="Chat not found")
+        
+        
+        
+        # Sort messages by created_at
+        db_full_chat.messages.sort(key=lambda message: message.created_at)
+        print(db_full_chat)
+
+        chat_history = f"Conversation:\n\n"
+        for currMessage in db_full_chat.messages:
+            sender = "assistant" if currMessage.sender == "assistant" else "human"
+            chat_history += f"{sender}: {currMessage.content}\n\n"
+
+        print(chat_history)
+        standardize_prompt_from_openai = standardize_prompt_for_RAG(chat_history)
+
+        print(standardize_prompt_from_openai)
+        search_results = search_in_qdrant(COLLECTION_NAME, standardize_prompt_from_openai, 10)
         
         combined_result = ""
         result_list = []
         for result in search_results:
-            # print(result.payload)
             combined_result += f"{result.payload}"
             result_list.append(result.payload)
+
         
-        # db_full_chat = (
-        #     db.query(ChatModel)
-        #     .options(joinedload(ChatModel.messages))
-        #     .filter(ChatModel.id == db_chat.id)
-        #     .first()
-        # )
-        # if not db_full_chat:
-        #     raise HTTPException(status_code=404, detail="Chat not found")
-        
-        # print(db_full_chat)
-        
-        # Sort messages by created_at
-        # db_full_chat.messages.sort(key=lambda message: message.created_at)
-        
-        openai_response = create_chat_completion(queryText, combined_result)
+        openai_response = create_chat_completion(chat_history, combined_result)
         # openai_response = create_chat_completion_context(queryText, db_full_chat.messages, combined_result)
+        
+        # MUST comment out these 
+        # openai_response="testing"
+        # result_list = []
         
         
         db_message_assistant = MessageModel(

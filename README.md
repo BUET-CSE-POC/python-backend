@@ -40,7 +40,13 @@ Install The requirements with the following command:
 pip install -r requirements.txt
 ```
 
-You also need this for building purpose
+It may lag. So better add a timeout
+
+```bash
+pip install -r requirements.txt --timeout=1000
+```
+
+You also need this for building purpose. Maybe do this installation at first
 
 ```bash
 sudo apt-get install -y tesseract-ocr libtesseract-dev libleptonica-dev build-essential

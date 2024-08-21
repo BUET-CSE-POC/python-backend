@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     QDRANT_API_KEY: str = os.getenv("QDRANT_API_KEY")
     COLLECTION_NAME_RISK_MANAGEMENT: str = os.getenv("COLLECTION_NAME_RISK_MANAGEMENT")
     BASE_URL: str = os.getenv("BASE_URL")
+    BANK_NAME: str = os.getenv("BANK_NAME")
 
 
 settings = Settings()
